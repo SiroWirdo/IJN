@@ -29,11 +29,6 @@ from joblib import Parallel, delayed
 import multiprocessing
 from scipy.spatial.distance import cosine
 
-#from sklearn.feature_extraction.text import CountVectorizer
-
-#WORDS_PERCENT=1
-#BIGRAMS_PERCENT=1
-
 py3k = sys.version_info >= (3, 0)
 
 if sys.version_info >= (2, 7):
@@ -54,72 +49,34 @@ else:
 
 sgjp = 'SGJP' in morfeusz.about()
 
-#omega=0.5 
-#phi_p=1#0.5
-#phi_g=1#0.5
 corpus=dict()
-#dic=dict()
 m=2
 wor=dict()
 wor['MRY']=2
 big=dict()
-#WORDS_G=0
-#BIGRAMS_G=0
-
 
 def processInput(filename,w,b):
-   # print '>',filename  
-    
-    #c=c+1  
     with open(filename, 'r') as myfile:
         source=myfile.read()
-    #print 'SUBS' 
+		
     analysed=analyse(source,filename)
-    #print 'BIGS '
     analysedForBigrams=analyseForBigrams(source,filename)  
-    #print 'MAP1 '
     mapa_1=createMapFromText(analysed,w)
            
     list_2=bigramsFromText(analysedForBigrams,b)
-    #global wor
-    #global big 
     wor[filename]=mapa_1
     big[filename]=list_2
-    #print 'CORP' 
-    #for k in mapa_1:
-    #    if (k not in corpus):
-    #        corpus.append(k)#[k]=counter
-                #counter=counter+1 
-    #for k in list_2:
-    #    k=(k[0].lower(),k[1].lower())
-    #    if (k not in corpus):
-    #        corpus.append(k)#[k]=counter
-                #counter=counter+1
-    #print 'W PROC ',wor
+
     return [wor,big]
 
 
 
 def analyse(text2,filename):
-        #err=False
     analysedSource='';  
-        #try:
-        #    target = open('/home/olusiak/Pobrane/analiza2/'+filename, 'r')
-        #    target.seek(0)  
-        #    first_char = target.read(1)  
-            #print 'F C ',first_char
-        #    if first_char: # and not bool(corpus):
-                #print 'IF '  
-        #        analysedSource=target.read().replace('\n', '')
-        #        target.close() 
-        #        return analysedSource 
-        #except:
-        #    err=True
     target = open('/home/olusiak/Pobrane/analiza2/'+filename, 'w+') 
     for text in text2.split('\n'):
         for line in text.split(' '): #word
             if (len(line)<3): 
-            #continue
                 target.write(':')
                 analysedSource=analysedSource+' :'
                 target.write(' '); 
@@ -147,17 +104,14 @@ def analyse(text2,filename):
     return analysedSource
 
 def analyseForBigrams(text2,filename):
-  #      err=False
     dic=dict()
-    analysedSource='';  
-    #target = open('/home/olusiak/Pobrane/analiza2/'+filename, 'w+')
+    analysedSource='';
+	
     for text in text2.split('\n'):
         for line in text.split(' '): #word
             if (len(line)<3): 
               
-            #target.write(':')
                 analysedSource=analysedSource+' :'
-            #target.write(' '); 
                 continue
            
             if ('n.p.m.' in line):
@@ -169,11 +123,8 @@ def analyseForBigrams(text2,filename):
                 continue
             
             for i in interps[0]: 
-                #target.write(i[1].encode('UTF-8'))
                 analysedSource=analysedSource+' '+i[1].encode('UTF-8')
                 dic[i[1].encode('UTF-8')]=i[2]
-                #target.write(' ');
-        #target.close()
     dic[':']='null'
     return [analysedSource,dic]
 
@@ -196,9 +147,8 @@ def createMapFromText(text,WORDS_G):
             chosenKey=k
             maxVal=mapa[k]
     mapa2=dict()
-        #print mapa
     maxVal=1*maxVal
-    minVal=0.9#*maxVal 
+    minVal=0.9 
     tuples=list()
     for k in mapa:
         if mapa[k]>=minVal and mapa[k]<=maxVal: 
@@ -236,12 +186,10 @@ def bigramsFromText(text,BIGRAMS_G):
         if (('subst' in dic[ngram[0][0]] and 'adj' in dic[ngram[0][1]])):
         
             if (ngram[1]<10.5):
-                #print 'ngr ',ngram    
                 bigram_list.append(ngram[0]) 
                 counter=counter+1   
                 if (counter==BIGRAMS_G):
                     break           
-                #print ngram , '\n'  
     return bigram_list 
 
 
@@ -250,7 +198,7 @@ def bigramsFromText(text,BIGRAMS_G):
 class test_analyse:
 
     WORDS=35
-    BIGRAMS=5#15
+    BIGRAMS=5
     CLUSTERS=5
     RAND=True
     RANDOM=False 
@@ -266,18 +214,17 @@ class test_analyse:
         cntr=p[2]  
 
         d = self.getDistance(data, cntr)
-        unew = d ** (- 2. / (m - 1)) #10.32a
+        unew = d ** (- 2. / (m - 1))
         unew = np.fmax(unew, np.finfo(np.float64).eps) 
         prawdopKlastrow=unew.sum(axis=0)  
           
-        for l in unew: #10.32a -> mianownik: po każdym klastrze odległość każdego k (elementu)
+        for l in unew:
             cnter=0
             for elem in range(len(l)):
                 l[elem]=l[elem]/prawdopKlastrow[cnter]
                 cnter+=1
        
         jm=(unew * d ** 2).sum() 
-        #print 'JFIT ',jm
         return jm
 
     
@@ -325,7 +272,6 @@ class test_analyse:
                     vec=np.random.choice(len(data),self.CLUSTERS,replace=False) #wybór wektorów danych jako cząstek
                     l=len(data[0])
                     c=int(math.floor(l/10))    
-                #print 'vec ',vec
                     vectors=list()
                     for index in vec:
                         v=list(data[index])
@@ -358,7 +304,6 @@ class test_analyse:
        
         it = 0
         while it < maxiter:
-            #print 'iter ',it
             r_p = np.random.uniform(size=(SWARM, DIMENSIONS))
             r_g = np.random.uniform(size=(SWARM, DIMENSIONS))
             v = self.omega*v + self.phi_p*r_p*(p - x) + self.phi_g*r_g*(g - x)
@@ -376,30 +321,25 @@ class test_analyse:
                 
 
         # kopiuj najlepsze pozycje
-            better_index = (fx < fp) #here
+            better_index = (fx < fp)
             p[better_index, :] = x[better_index, :].copy()
             fp[better_index] = fx[better_index]
            
         # wybierz najlepszy z roju
             min_index = np.argmin(fp)
-            #print 'fp: ',fp[min_index]
             if fp[min_index] < fg:
-                #print 'Fp'
                 p_min = p[min_index, :].copy()
-                step_difference = np.linalg.norm(g - p_min) #np.sqrt(np.sum((g - p_min)**2))
+                step_difference = np.linalg.norm(g - p_min)
 
                 if np.abs(fg - fp[min_index]) < min_difference_fx:
-                    #print('Stop (brak zmian funkcji)')
                     return p_min, fp[min_index]
                 if step_difference < min_difference:
-                    #print('Stop (brak zmiany najlepszej pozycji)')
                     return p_min, fp[min_index]
                 
                 g = p_min.copy()
                 fg = fp[min_index]
             it += 1
     
-#        print('Stop (koniec iteracji)')
         return g, fg
 
 
@@ -421,10 +361,6 @@ class test_analyse:
 ################################  F u z z y   C   M e a n s    ########################################################3
 
     def fuzzyStep(self, data, u_old, c, m):
-        #print 'CL ',self.CLUSTERS,' W ',self.WORDS
-        #print 'um 0 ', um.sum(axis=0) #sumowane kolumny po kolei (cały klaster)
-        #print 'um 1 ',um.sum(axis=1)   #wiersze po kolei (dla każdego przykładu suma przynależności do poszczególnych klastrów)
-          
     
         u_old = np.fmax(u_old, np.finfo(np.float64).eps) #eliminuje zerowe wartości do minimalnych
         
@@ -438,30 +374,22 @@ class test_analyse:
             for elem in range(len(l)):
                 l[elem]=l[elem]/prawdopPrzynaleznosiElementuDoKlastrow[cnter]
             cnter+=1
- 
-        
         
         #3. partition matrix
-        #d = cdist(data, cntr).T #euklides
-        #print 'cos dist ',data,cntr,':::'   
-        d = cosine_distances(data, cntr).T#, metric='cosine'#cosine(data, cntr).T #kosinusowa
-
-
+        d = cosine_distances(data, cntr).T
         d = np.fmax(d, np.finfo(np.float64).eps) #eliminuje zerowe wartości do minimalnych
-        jm = (um * d ** 2).sum() #10.28  
-        unew = d ** (- 2. / (m - 1)) #10.32a
+        jm = (um * d ** 2).sum()
+        unew = d ** (- 2. / (m - 1))
        
         prawdopKlastrow=unew.sum(axis=0)  
           
-        for l in unew: #10.32a -> mianownik: po każdym klastrze odległość każdego k (elementu)
+        for l in unew:
             cnter=0
             for elem in range(len(l)):
                 l[elem]=l[elem]/prawdopKlastrow[cnter]
                 cnter+=1
-        jm = (unew * d ** 2).sum() #10.28  
-        #print 'CNTR ',cntr,' UNEW ',unew #ok
-        return cntr, unew, jm # cntr = CLUSWARMTERSWARM X VECTOR.SWARMIZE
- 
+        jm = (unew * d ** 2).sum()  
+        return cntr, unew, jm
 
     def getDistance(self, data, centers, one=False):
                 
@@ -484,9 +412,6 @@ class test_analyse:
                 cou+=1 
                 row=list()
        
-        #return cdist(data, cntrs).T # T <=> transpose
-        #return cosine(data, cntrs).T
-        #print 'cos dist ',data,cntrs,':::'    
         return cosine_distances(data, cntrs).T#
 
     def fuzzycmeans(self, data, c, m, error, maxiter, cntr, start=None,seed=None):
@@ -498,36 +423,30 @@ class test_analyse:
             n = data.shape[0]
             u_start = np.random.rand(c, n)
             u_start /= np.ones(#
-                (c, 1)).dot(np.atleast_2d(u_start.sum(axis=0)))#.astype(np.float64)
+                (c, 1)).dot(np.atleast_2d(u_start.sum(axis=0)))
             start = u_start.copy()
         
         u_start = start
         
-        
-        #print 'USTART1 ',u_start 
         if cntr is None and not self.RAND:
             cntr=list()   
             v=np.random.choice(len(data),self.CLUSTERS,replace=False) #wybór wektorów danych jako centrów  
             for ind in v:
                 cntr.append(data[ind])
-            #print 'CCN. ',cntr
         if cntr is not None:
             
-            #print '**'
             d = self.getDistance(data, cntr)
-            unew = d ** (- 2. / (m - 1)) #10.32a
+            unew = d ** (- 2. / (m - 1))
             unew = np.fmax(unew, np.finfo(np.float64).eps) 
             prawdopKlastrow=unew.sum(axis=0)  
         #  
-            for l in unew: #10.32a -> mianownik: po każdym klastrze odległość każdego k (elementu)
+            for l in unew:
                 cnter=0
                 for elem in range(len(l)):
                     l[elem]=l[elem]/prawdopKlastrow[cnter]
                     cnter+=1
             u_start=unew 
         
-
-        #print 'USTART2 ',u_start 
         u = np.fmax(u_start, np.finfo(np.float64).eps)
        
         iter = 0
@@ -537,7 +456,6 @@ class test_analyse:
         while iter < maxiter - 1:
             u_old = u.copy()
             [cntr, u, jm] = self.fuzzyStep(data, u_old, c, m)
-            #print 'JMf ',jm
             iter += 1
             if np.linalg.norm(u - u_old) < error: #pierwiastek z sumy kwadratów
                 break
@@ -550,22 +468,10 @@ class test_analyse:
     def analyse(self,text,filename):
         err=False
         analysedSource='';  
-        #try:
-        #    target = open('/home/olusiak/Pobrane/analiza2/'+filename, 'r')
-        #    target.seek(0)  
-        #    first_char = target.read(1)  
-            #print 'F C ',first_char
-        #    if first_char: # and not bool(corpus):
-                #print 'IF '  
-        #        analysedSource=target.read().replace('\n', '')
-        #        target.close() 
-        #        return analysedSource 
-        #except:
-        #    err=True
+        
         target = open('/home/olusiak/Pobrane/analiza2/'+filename, 'w+') 
-        for line in text.split(' '): #word
+        for line in text.split(' '):
             if (len(line)<3): 
-                #continue
                 target.write(':')
                 analysedSource=analysedSource+' :'
                 target.write(' '); 
@@ -595,16 +501,12 @@ class test_analyse:
     def analyseForBigrams(self,text,filename):
         err=False
         analysedSource='';  
-        dic=dict()#x
+        dic=dict()
 
-       
-        #target = open('/home/olusiak/Pobrane/analiza2/'+filename, 'w+')
-        for line in text.split(' '): #word
+        for line in text.split(' '):
             if (len(line)<3): 
                 
-                #target.write(':')
                 analysedSource=analysedSource+' :'
-                #target.write(' '); 
                 continue
             
             if ('n.p.m.' in line):
@@ -616,11 +518,8 @@ class test_analyse:
                 continue
             
             for i in interps[0]: 
-                #target.write(i[1].encode('UTF-8'))
                 analysedSource=analysedSource+' '+i[1].encode('UTF-8')
                 dic[i[1].encode('UTF-8')]=i[2]
-                #target.write(' ');
-        #target.close()
         return [analysedSource,dic]
 
 
@@ -630,54 +529,17 @@ class test_analyse:
     def openFiles(self,filenames,result):
         corpus=dict()
         counter=1
-        #csvFile=open('/home/olusiak/Pobrane/analiza/'+result, 'w+')
-        #vectors=open('/home/olusiak/Pobrane/analiza/vectors','w+')
         vecs=list()
         arrCount=0
         c=0
-        
-        #print 'FILE '
 
-        #num_cores = multiprocessing.cpu_count()
-    
-        #krotka=Parallel(n_jobs=num_cores)(delayed(processInput)(filename,self.WORDS,self.BIGRAMS) for filename in filenames)
-        
-        #print '.....................................'
         for filename in filenames:
             processInput(filename,self.WORDS,self.BIGRAMS)
  
-        #wor=dict()
-        #big=dict()
-        #for k in krotka:
-        #    wdict=k[0]
-        #    for key in wdict:
-        #        wor[key]=wdict[key]
-            #print k[0]
-            #print ',,,,,'
-        #    bdict=k[1]
-            #print k[1]
-            #print '////'
-        #    for key in bdict:
-        #        big[key]=bdict[key]
-        
-
-        
         for filename in filenames:
-        #    print '>',filename  
-        #    c=c+1  
-        #    with open(filename, 'r') as myfile:
-        #        source=myfile.read()
-        #    print 'SUBS' 
-        #    analysed=self.analyse(source,filename)
-        #    print 'BIGS '
-        #    analysedForBigrams=self.analyseForBigrams(source,filename)  
-        #    print 'MAP1 '
-            mapa_1=wor[filename]#self.createMapFromText(analysed)
+            mapa_1=wor[filename]
             
-            list_2=big[filename]#self.bigramsFromText(analysedForBigrams)
-        #    wor[filename]=mapa_1
-        #    big[filename]=list_2
-        #    print 'CORP' 
+            list_2=big[filename]
             for k in mapa_1:
                 if (k not in corpus):
                     corpus[k]=counter
@@ -688,26 +550,12 @@ class test_analyse:
                     corpus[k]=counter
                     counter=counter+1
         arrs=np.ndarray(shape=(len(filenames),len(corpus)), dtype=float, order='F')
-        #print 'WORD2 ',wor
-        #print 'FILE 2'
         for filename in filenames:
             vector=list() 
-            #with open(filename, 'r') as myfile:
-            #    source=myfile.read().lower()
-
-            #analysed=self.analyse(source,filename)
-            #analysedForBigrams=self.analyseForBigrams(source,filename) 
-            mapa_1=wor[filename] #self.createMapFromText(analysed)
+            mapa_1=wor[filename]
             
-            list_2=big[filename] #self.bigramsFromText(analysedForBigrams)
-            #csvFile.write(filename+'\n')
-            #for l in mapa_1: 
-            #    csvFile.write(l+' ') 
-            #for l in list_2:
-            #    csvFile.write(' ('+l[0]+', '+l[1]+')') 
-            #csvFile.write('\n')
+            list_2=big[filename]
              
-            #print 'fc> ',filename
             for k in corpus:
                 
                 if k in mapa_1 or k in list_2:
@@ -718,7 +566,6 @@ class test_analyse:
                     vector.append(0) 
             
             vecs.append(vector)
-            #vectors.write(filename+' ')
             
             my_array=np.array('i')
             
@@ -727,41 +574,15 @@ class test_analyse:
             arrs[arrCount]=my_array
             arrCount=arrCount+1
              
-            #x=arrs.size
-             
-            #for item in vector:
-            #    vectors.write("%s " % item) 
-            #vectors.write('\n')
-            
-       
-        #arrs2=np.ndarray(shape=(len(corpus),len(filenames)), dtype=float, order='F')
-       
-        #co=0 
-        #for myarr in arrs:
-        #    for i in range(len(arrs2)):
-        #        arrs2[i][co]=myarr[i]
-        #    co=co+1     
-         
-        #csvFile.close()
-        #vectors.close()  
-        #print 'RET '
         return corpus, arrs
-
-   
 
     def cmeans(self,alldata,centers=None,u_start=None):
           
         cntr, u_orig, u_start = self.fuzzycmeans(alldata, self.CLUSTERS, m, maxiter=2000, error=0.005, cntr=centers, start=u_start)  
         cluster_membership = np.argmax(u_orig, axis=0)
         
-     
-        #print 'CNTR ',cntr, 
-        #print   '\n U ORIG ', u_orig.size, '\n',u_orig #ok
-        #print 'clus ',cluster_membership #ok
         return cntr, u_orig, alldata,m
        
-
-
     def createMapFromText(self,text):
         mapa=dict()
         for word in text.split(" "):
@@ -778,9 +599,8 @@ class test_analyse:
                 chosenKey=k
                 maxVal=mapa[k]
         mapa2=dict()
-        #print mapa
         maxVal=1*maxVal
-        minVal=0.9#*maxVal 
+        minVal=0.9
         tuples=list()
         for k in mapa:
             if mapa[k]>=minVal and mapa[k]<=maxVal: 
@@ -818,12 +638,10 @@ class test_analyse:
             if (('subst' in dic[ngram[0][0]] and 'adj' in dic[ngram[0][1]])):
           
                 if (ngram[1]<10.5):
-                    #print 'ngr ',ngram    
                     bigram_list.append(ngram[0]) 
                     counter=counter+1   
                     if (counter==self.BIGRAMS):
                         break           
-                #print ngram , '\n'  
         return bigram_list 
 
 
@@ -866,7 +684,6 @@ class test_analyse:
         return np.min(values)
     def big_delta_fast(self,ci, distances):
         values = distances[np.where(ci)][:, np.where(ci)]
-        #values = values[np.nonzero(values)]
         return np.max(values)
 
 
@@ -916,52 +733,7 @@ class test_analyse:
         res = db/len_k_list
         return res
          
-
-
-
-
-#xy.append("wind")
-#xy.append("krzyżacy")
-#xy.append("portu") 
-#xy.append("hiszp")
-#xy.append("linux")
-#xy.append("wind2")
-#xy.append("wojna1")
-#xy.append("wojna2")
-#xy.append("wojna3")
-#xy.append("wojna4")
-#xy.append("panw") 
-#xy.append("historia1")
-#xy.append("wojnapolniem")
-#xy.append("historia2")
-#xy.append("historia3")
-#xy.append("bitwa1")
-#xy.append("tatry") 
-#xy.append("foga") 
-#xy.append("alpy") 
-#xy.append("pwr")
-#xy.append("pgd")
-#xy.append("pwa") 
-
-#xy.append("ogniem") 
-#xy.append("potop") 
-#xy.append("onko") 
-#xy.append("gastro") 
-#xy.append("rosl") 
-#xy.append("burza") 
-#xy.append("czesto") 
-#xy.append("mocz") 
-#xy.append("choco")
-#xy.append("kakao")
-#xy.append("włosy1")
-#xy.append("włosy2")
-#xy.append("komt")
-#xy.append("/home/olusiak/Pobrane/analiza/resultFile")
-#x.createMap(xy)
-
 def start():
-    #global wor
-    #global big
     xy=list()
     labels_true=list()
 
@@ -1178,7 +950,6 @@ def start():
     labels_true.append(9)
     xy.append("volkswagen.txt")
     labels_true.append(8)  
-#corpus, arrs=x.openFiles(xy,"resultFile")
 
     rrand=list()
     rrand.append(True)
@@ -1198,8 +969,6 @@ def start():
     bbigs.append(5)
     #bbigs.append(25)
     #bbigs.append(25) 
-    #print wwords
-    #print bbigs
     
     num_cores = multiprocessing.cpu_count()
     for c in cclusters:
@@ -1207,36 +976,24 @@ def start():
             for p1 in pparameters:
                 for p2 in pparameters:
                    for om in pparameters: 
-    #        num_cores = multiprocessing.cpu_count()
                        Parallel(n_jobs=num_cores)(delayed(forLoopClusters)(c,xy,labels_true) for b in bbigs) 
-    #Parallel(n_jobs=num_cores)(delayed(forLoopClusters)(c,xy,labels_true) for c in cclusters)        
 
 def forLoopClusters(c,xy,labels_true):
-    print '>;',c,';'#,silh,'; ',dunn,';',davis,' -> ',labels_pred 
+    print '>;',c,';'
     wor=dict()
     big=dict()
     x = test_analyse()
     x.CLUSTERS=c  
     m=2
     corpus, arrs=x.openFiles(xy,"resultFile")
-    #print 'CORP SIZE ',len(corpus)
-    #cntr,u_first,data,m=x.cmeans(arrs)
-                #print ' AFTER OPEN - PSO '
     best, _ = x.pso(None, arrs, m, None)
-                #print ' AFTER PSO - CM '
-    cntr,u_old,data,m=x.cmeans(arrs,centers=best)#,u_start=u_first)
-                #print ' AFTER CM '
+    cntr,u_old,data,m=x.cmeans(arrs,centers=best)
     print 'u ',u_old
     labels_pred = np.argmax(u_old, axis=0)     
-                #print 'f ',labels_pred
     try:
         silh=metrics.silhouette_score(data,labels_pred)       
     except:
         silh=-2 
-    #score=metrics.adjusted_rand_score(labels_true, labels_pred)
-    #score2=metrics.normalized_mutual_info_score(labels_true,labels_pred)
-    #score3=metrics.mutual_info_score(labels_true,labels_pred)
-    #score4=metrics.v_measure_score(labels_true, labels_pred)
     db=list()
     k_list=list()
     for i in range(c):         
@@ -1258,7 +1015,6 @@ def forLoopClusters(c,xy,labels_true):
     davis=x.davisbouldin(k_list,cntr)            
     dunn=x.dunn_fast(data,labels_pred)
     score=metrics.adjusted_rand_score(labels_true, labels_pred)
-    #print u_old
     print '>;',c,';',score,' ... ' ,silh,'; ',dunn,';',davis,' -> ',labels_pred
 
 def forLoop(w,b,c,xy,labels_true,p1,p2,om):
@@ -1273,17 +1029,10 @@ def forLoop(w,b,c,xy,labels_true,p1,p2,om):
     x.phi_p=p1
     x.phi_g=p2
     x.omega=om   
-    #print 'OPEN ',w,' ',b,', ',c
     corpus, arrs=x.openFiles(xy,"resultFile")
-    #cntr,u_first,data,m=x.cmeans(arrs)
-    #print ' AFTER OPEN - PSO '
     best, _ = x.pso(None, arrs, m, None)
-    #print ' AFTER PSO - CM '
-    cntr,u_old,data,m=x.cmeans(arrs,centers=best)#,u_start=u_first)
-    #print ' AFTER CM '
-                #print 'u ',u_old
+    cntr,u_old,data,m=x.cmeans(arrs,centers=best)
     labels_pred = np.argmax(u_old, axis=0)     
-                #print 'f ',labels_pred
     try:
         silh=metrics.silhouette_score(data,labels_pred)       
     except:
@@ -1294,7 +1043,6 @@ def forLoop(w,b,c,xy,labels_true,p1,p2,om):
     score4=metrics.v_measure_score(labels_true, labels_pred)
                 
     dunn=x.dunn_fast(data,labels_pred)
-    #print u_old
     print '>',w,'; ',b,'; ',p1,', ',p2,', ',om,' = ',score,'; ',score2,'; ',score3,'; ',silh,'; ',dunn,' -> ',labels_pred
 
 def read(filename):
@@ -1309,7 +1057,7 @@ def read(filename):
                 try:
                     spl=line.split(';')
                     spl=float(spl[2]) 
-                    sort[line]=spl #print '* ',line
+                    sort[line]=spl
                 except:
                     continue
     tuples=list()
@@ -1317,23 +1065,5 @@ def read(filename):
         tuples.append([k,sort[k]])
        
     tuples.sort(key=lambda tup: tup[1])
-    #for t in reversed(tuples):
-    #    print t
-
 
 start() 
-#read('wp1')#OSINUS_3_PSO')
-
-
-
-
-#best, _ = x.pso([item for sublist in cntr for item in sublist], x.Jfit, u_old, data, m, cntr, np.zeros((1,len(cntr)*len(cntr[0]))), np.ones((1,len(cntr)*len(cntr[0]))))
-
-#for c in best:
-#    print 'best ',c
-#unew=x.check(data, best)
-#cluster_membership = np.argmax(unew, axis=0)
-#print 'UNEW ',unew, '\n',cluster_membership
-
-
-
